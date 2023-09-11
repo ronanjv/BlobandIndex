@@ -48,4 +48,8 @@ public class Blob {
         return strHashCode;
     }
 
+    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+        String file = "input.txt";
+        blob(file);
+    }
 }
