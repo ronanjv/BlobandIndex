@@ -36,16 +36,34 @@ public class Blob {
     }
 
     public static String generateSHA(String input) throws NoSuchAlgorithmException {
-        MessageDigest objSHA = MessageDigest.getInstance("SHA-1");
-        byte[] bytSHA = objSHA.digest(input.getBytes());
-        BigInteger intNumber = new BigInteger(1, bytSHA);
-        String strHashCode = intNumber.toString(16);
+        try {
+            // getInstance() method is called with algorithm SHA-1
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
 
-        // pad with 0 if the hexa digits are less then 40.
-        while (strHashCode.length() < 40) {
-            strHashCode = "0" + strHashCode;
+            // digest() method is called
+            // to calculate message digest of the input string
+            // returned as array of byte
+            byte[] messageDigest = md.digest(input.getBytes());
+
+            // Convert byte array into signum representation
+            BigInteger no = new BigInteger(1, messageDigest);
+
+            // Convert message digest into hex value
+            String hashtext = no.toString(16);
+
+            // Add preceding 0s to make it 32 bit
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+
+            // return the HashText
+            return hashtext;
         }
-        return strHashCode;
+
+        // For specifying wrong message digest algorithms
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
