@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,8 +8,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Blob {
-
-    private String filePath;
 
     public static String blob(String inputFile) throws IOException, NoSuchAlgorithmException {
         File file = new File(inputFile);
