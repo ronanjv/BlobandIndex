@@ -12,60 +12,73 @@ import org.junit.jupiter.api.Test;
 public class IndexTester {
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
-        /*
-         * Utils.writeStringToFile("junit_example_file_data.txt", "test file contents");
-         * Utils.deleteFile("index");
-         * Utils.deleteDirectory("objects");
-         */
+        File file = new File("asdf.txt");
+        FileWriter fw = new FileWriter(file);
+        fw.write("asdf");
+        fw.close();
+        File file2 = new File("ghjk.txt");
+        FileWriter fw2 = new FileWriter(file2);
+        fw2.write("ghjk");
+        fw2.close();
     }
 
     @AfterAll
     static void tearDownAfterClass() throws Exception {
-        /*
-         * Utils.deleteFile("junit_example_file_data.txt");
-         * Utils.deleteFile("index");
-         * Utils.deleteDirectory("objects");
-         */
+        Files.deleteIfExists(Paths.get("asdf.txt"));
+        Files.deleteIfExists(Paths.get("ghjk.txt"));
+        Files.deleteIfExists(Paths.get("index"));
+        Files.deleteIfExists(Paths.get("./objects/"));
+
     }
-
+    
     @Test
-    @DisplayName("[8] Test if initialize and objects are created correctly")
-    void testInit() throws Exception {
-
-        // Run the person's code
-        // TestHelper.runTestSuiteMethods("testInitialize");
-
-        // check if the file exists
-        File file = new File("index");
-        Path path = Paths.get("objects");
-
-        assertTrue(file.exists());
+    @DisplayName("Creates a Blob")
+    public void testBlob() throws Exception{
+        Blob blubby = new Blob("asdf.txt");
+        blubby.writeToDisk();
+        File file2 = new File("./objects/"+blub.getSHA1());
+        assertTrue(file2.exists());
+        BufferedReader br = new BufferedReader(new FileReader(file2));
+        String str = "";
+        while(br.ready()){str+=br.read();}
+        br.close();
+        BufferedReader br2 = new BufferedReader(new FileReader("asdf.txt"));
+        String str2 = "";
+        while(br2.ready()){str+=br2.read();}
+        br2.close();
+        assertEquals(str,str2);
+    }
+    @Test
+    @DisplayName("initializes the index")
+    public void testInit(){
+        Index index = new Index();
+        index.init();
+        File file3 = new File("index");
+        assertTrue(file3.exists());
+        Path path = Paths.get("./objects/");
         assertTrue(Files.exists(path));
     }
 
     @Test
-    @DisplayName("[15] Test if adding a blob works.  5 for sha, 5 for file contents, 5 for correct location")
-    void testCreateBlob() throws Exception {
-
-        try {
-
-            // Manually create the files and folders before the 'testAddFile'
-            // MyGitProject myGitClassInstance = new MyGitProject();
-            // myGitClassInstance.init();
-
-            // TestHelper.runTestSuiteMethods("testCreateBlob", file1.getName());
-
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+    @DisplayName("adds a blob")
+    public void testAdd() throws IOException{
+        StringBuilder bob = new StringBuilder();
+        Index indy = new Index();
+        BufferedReader br3 = new BufferedReader(new FileReader("index"));
+        while(br3.ready()){
+            bob.append(br3.readLine()+"\n");
         }
 
-        // Check blob exists in the objects folder
-        File file_junit1 = new File("objects/" + file1.methodToGetSha1());
-        assertTrue("Blob file to add not found", file_junit1.exists());
-
-        // Read file contents
-        String indexFileContents = MyUtilityClass.readAFileToAString("objects/" + file1.methodToGetSha1());
-        assertEquals("File contents of Blob don't match file contents pre-blob creation", indexFileContents,
-                file1.getContents());
+        br3.close();
+        Blob b = new Blob("ghjk.txt");
+        bob.append("ghjk.txt:"+b.getSHA1()+"\n");
+        indy.addBlob(new Blob("ghjk.txt"), "ghjk.txt");
+        StringBuilder idk = new StringBuilder();
+        BufferedReader br4 = new BufferedReader(new FileReader("index"));
+        while(br4.ready()){
+            idk.append(br4.readLine()+"\n");
+        }
+        br4.close();
+        assertEquals(bob.toString(),idk.toString());
     }
 }
