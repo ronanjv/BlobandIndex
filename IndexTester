@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.Test
 
 public class IndexTester {
     @BeforeAll
@@ -80,5 +81,20 @@ public class IndexTester {
         }
         br4.close();
         assertEquals(bob.toString(),idk.toString());
+    }
+    @Test
+    @DisplayName("tests tree methods")
+    public void testTree() throws Exception{
+        Tree tree = new Tree();
+        String str = "blob : "+Blob.sha1Hash("asdf")+" : asdf.txt";
+        tree.add(str);
+        tree.add("blob : "+Blob.sha1Hash("ghjk")+" : ghjk.txt");
+        tree.remove("ghjk.txt");
+        tree.writeToFile();
+        assertTrue(Files.exists(Paths.get("./objects/"+Blob.sha1Hash(str))));
+        BufferedReader br = new BufferedReader(new FileReader("./objects/"+Blob.sha1Hash(str)));
+        String str2 = br.readLine();
+        br.close();
+        assertEquals(str,str2);
     }
 }
