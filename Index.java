@@ -48,7 +48,7 @@ public class Index {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Index index = new Index();
-        index.addBlob("file1.txt");
-        index.removeBlob("file1.txt");
+        index.addBlob("test.txt");
+        index.removeBlob("test.txt");
     }
 }
