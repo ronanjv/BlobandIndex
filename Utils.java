@@ -1,6 +1,7 @@
 import java.io.*;
 
 public class Utils {
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated\\";
 
     public static void writeStringToFile(String filename, String str) throws FileNotFoundException {
         PrintWriter pw = new PrintWriter(filename);
@@ -19,12 +20,12 @@ public class Utils {
     }
 
     public static void deleteFile(String f) {
-        File file = new File(f);
+        File file = new File(pathToWorkSpace + f);
         file.delete();
     }
 
     public static void deleteDirectory(String f) {
-        File file = new File(f);
+        File file = new File(pathToWorkSpace + f);
         file.delete();
     }
 
