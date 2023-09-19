@@ -4,6 +4,7 @@ import java.security.*;
 import java.util.*;
 
 public class Tree {
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
 
     private List<String> entries = new ArrayList<>();
     private String sha1;
@@ -29,7 +30,7 @@ public class Tree {
         sha1 = byteArrayToHex(hashBytes);
 
         // Create the blob file in the 'objects' folder
-        Path blobPath = Paths.get("objects", sha1);
+        Path blobPath = Paths.get(pathToWorkSpace + "\\objects", sha1);
         Files.write(blobPath, content.toString().getBytes());
     }
 
@@ -44,6 +45,10 @@ public class Tree {
             result.append(String.format("%02x", b));
         }
         return result.toString();
+    }
+
+    public List<String> getEntries() {
+        return this.entries;
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
