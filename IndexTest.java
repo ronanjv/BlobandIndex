@@ -43,7 +43,6 @@ public class IndexTest {
 
     @Test
     void testAddBlob() throws Exception {
-        // Index index = new Index();
         index.addBlob("junit_example_test1.txt");
         index.addBlob("junit_example_test2.txt");
         File indexPath = new File(pathToWorkSpace + "//index");
@@ -68,6 +67,11 @@ public class IndexTest {
 
     @Test
     void testGetBlobHash() throws Exception {
+        index.addBlob("junit_example_test1.txt");
+        index.addBlob("junit_example_test2.txt");
+        // assert that the getBlobHash method returns the expected SHA1 hash
+        assertEquals("f5cda28ce12d468c64a6a2f2224971f894442f1b", index.getBlobHash("junit_example_test1.txt"));
+        assertEquals("50d4b41eed4faffe212d8cf6ec89d7889dfeff9e", index.getBlobHash("junit_example_test2.txt"));
 
         // delete the blobs in the objects folder
         Path tree1 = Paths.get(pathToWorkSpace + "\\objects", "f5cda28ce12d468c64a6a2f2224971f894442f1b");
@@ -87,7 +91,10 @@ public class IndexTest {
     }
 
     @Test
-    void testRemoveBlob() {
-
+    void testRemoveBlob() throws Exception {
+        index.removeBlob("junit_example_test1.txt");
+        index.removeBlob("junit_example_test2.txt");
+        assertFalse(index.containsBlob("junit_example_test1.txt"));
+        assertFalse(index.containsBlob("junit_example_test2.txt"));
     }
 }
