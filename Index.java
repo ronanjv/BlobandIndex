@@ -6,19 +6,20 @@ import java.util.*;
 public class Index {
 
     private HashMap<String, String> files = new HashMap<>();
-    private static String path = "objects";
+    private static String path = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
 
     public Index() throws IOException {
         init();
     }
 
     public static void init() throws IOException {
-        java.nio.file.Path folderPath = Paths.get(path);
+        // init should not create the index file inside the objects folder
+        java.nio.file.Path folderPath = Paths.get(path + "\\objects");
         if (!Files.exists(folderPath)) {
             Files.createDirectory(folderPath);
         }
 
-        Path indexPath = folderPath.resolve("index");
+        Path indexPath = Paths.get(path + "\\index");
         if (!Files.exists(indexPath)) {
             Files.createFile(indexPath);
         }
@@ -32,7 +33,7 @@ public class Index {
         Path indexPath = Paths.get(path + File.separator + "index");
         try (BufferedWriter writer = Files.newBufferedWriter(indexPath, StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
-            writer.write(fileName + " : " + hashName);
+            writer.write("blob : " + fileName + " : " + hashName);
             writer.newLine();
         }
     }
