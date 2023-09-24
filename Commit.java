@@ -21,6 +21,7 @@ public class Commit {
 
     // constructor for any commit after the first ever commit
     public Commit(String shaOfPrevCommit, String author, String summary) throws Exception {
+        this.toPrint = new StringBuilder("");
         createTree();
         this.prevCommit = shaOfPrevCommit;
         if (nextCommit == null)
@@ -42,23 +43,26 @@ public class Commit {
         File fileToPrevCommit = new File(pathToWorkSpace + "\\objects\\" + shaOfPrevCommit);
         StringBuilder tempSB = new StringBuilder("");
         BufferedReader br = new BufferedReader(new FileReader(fileToPrevCommit));
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             if (i != 2)
-                tempSB.append(br.readLine());
-            else
+                tempSB.append(br.readLine() + "\n");
+            else {
                 br.readLine();
-            tempSB.append(generateSha1());
+                tempSB.append(generateSha1() + "\n");
+            }
         }
+        tempSB.append(br.readLine());
         br.close();
 
         // update the second most recently created commits "next" value
-        PrintWriter pw = new PrintWriter(shaOfPrevCommit);
+        PrintWriter pw = new PrintWriter(pathToWorkSpace + "\\objects\\" + shaOfPrevCommit);
         pw.print(tempSB.toString());
         pw.close();
     }
 
     // constructor for the first commit with no parent or next
     public Commit(String author, String summary) throws Exception {
+        this.toPrint = new StringBuilder("");
         createTree();
         if (prevCommit == null)
             prevCommit = "";
@@ -107,5 +111,12 @@ public class Commit {
         Tree tree = new Tree();
         tree.generateBlob();
         this.tree = tree.getSha1();
+    }
+
+    public static void main(String[] args) throws Exception {
+        Commit c1 = new Commit("paco", "first ever commit");
+        Commit c2 = new Commit(c1.generateSha1(), "paco", "second ever commit");
+        System.out.println(c1.getDate());
+        System.out.println(c2.getDate());
     }
 }
