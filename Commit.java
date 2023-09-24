@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +36,25 @@ public class Commit {
         toPrint.append(this.author + "\n");
         toPrint.append(this.date + "\n");
         toPrint.append(this.summary);
+        save();
+
+        // add updated commit contents in a stringbuilder
+        File fileToPrevCommit = new File(pathToWorkSpace + "\\objects\\" + shaOfPrevCommit);
+        StringBuilder tempSB = new StringBuilder("");
+        BufferedReader br = new BufferedReader(new FileReader(fileToPrevCommit));
+        for (int i = 0; i < 5; i++) {
+            if (i != 2)
+                tempSB.append(br.readLine());
+            else
+                br.readLine();
+            tempSB.append(generateSha1());
+        }
+        br.close();
+
+        // update the second most recently created commits "next" value
+        PrintWriter pw = new PrintWriter(shaOfPrevCommit);
+        pw.print(tempSB.toString());
+        pw.close();
     }
 
     // constructor for the first commit with no parent or next
@@ -52,10 +75,6 @@ public class Commit {
         toPrint.append(this.author + "\n");
         toPrint.append(this.date + "\n");
         toPrint.append(this.summary);
-
-        // prevCommit needs to be updated to the sha of this current commit so that next
-        // commits can access this value
-        this.prevCommit = generateSha1();
         save();
     }
 
