@@ -15,6 +15,7 @@ public class Commit {
     StringBuilder toPrint;
     static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
 
+    // constructor for any commit after the first ever commit
     public Commit(String shaOfPrevCommit, String author, String summary) throws Exception {
         createTree();
         this.prevCommit = shaOfPrevCommit;
@@ -33,6 +34,7 @@ public class Commit {
         toPrint.append(this.summary);
     }
 
+    // constructor for the first commit with no parent or next
     public Commit(String author, String summary) throws Exception {
         createTree();
         if (prevCommit == null)
@@ -50,9 +52,14 @@ public class Commit {
         toPrint.append(this.author + "\n");
         toPrint.append(this.date + "\n");
         toPrint.append(this.summary);
+
+        // prevCommit needs to be updated to the sha of this current commit so that next
+        // commits can access this value
+        this.prevCommit = generateSha1();
+        save();
     }
 
-    public void writeToFile() throws Exception {
+    public void save() throws Exception {
         // Create the commit file in the 'objects' folder
         Path commitPath = Paths.get(pathToWorkSpace + "\\objects", generateSha1());
         Files.write(commitPath, toPrint.toString().getBytes());
@@ -69,13 +76,14 @@ public class Commit {
         return Blob.generateSHA(forSHA.toString());
     }
 
-    // inspired by javatpoint.com
+    // code taken from javatpoint.com
     public String getDate() {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         return formatter.format(date);
     }
 
+    // create a tree and generate a base sha1 for an empty file
     public void createTree() throws Exception {
         Tree tree = new Tree();
         tree.generateBlob();
