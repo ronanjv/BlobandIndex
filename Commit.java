@@ -9,7 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Commit {
-    String tree = null;
+    Tree tree = null;
+    String treeHash = null;
     String prevCommit = null;
     String nextCommit = null;
     String author;
@@ -31,12 +32,8 @@ public class Commit {
         this.date = getDate();
         this.summary = summary;
 
-        toPrint.append(this.tree + "\n");
-        toPrint.append(this.prevCommit + "\n");
-        toPrint.append(this.nextCommit + "\n");
-        toPrint.append(this.author + "\n");
-        toPrint.append(this.date + "\n");
-        toPrint.append(this.summary);
+        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
+                + this.date + "\n" + this.summary);
         save();
 
         // add updated commit contents in a stringbuilder
@@ -73,12 +70,9 @@ public class Commit {
         this.date = getDate();
         this.summary = summary;
 
-        toPrint.append(this.tree + "\n");
-        toPrint.append(this.prevCommit + "\n");
-        toPrint.append(this.nextCommit + "\n");
-        toPrint.append(this.author + "\n");
-        toPrint.append(this.date + "\n");
-        toPrint.append(this.summary);
+        // toPrint will be printed out to a commit file in the objects folder
+        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
+                + this.date + "\n" + this.summary);
         save();
     }
 
@@ -91,7 +85,7 @@ public class Commit {
     public String generateSha1() throws Exception {
         StringBuilder forSHA = new StringBuilder("");
         // add all the file contents except for the next commit
-        forSHA.append(this.tree + "\n");
+        forSHA.append(tree.returnAllEntries() + "\n");
         forSHA.append(this.prevCommit + "\n");
         forSHA.append(this.author + "\n");
         forSHA.append(this.date + "\n");
@@ -108,9 +102,21 @@ public class Commit {
 
     // create a tree and generate a base sha1 for an empty file
     public void createTree() throws Exception {
-        Tree tree = new Tree();
-        tree.generateBlob();
-        this.tree = tree.getSha1();
+        this.tree = new Tree();
+        this.tree.generateBlob();
+        this.treeHash = tree.getSha1();
+    }
+
+    public void addToTree(String fileName) throws Exception {
+        this.tree.add(fileName);
+        // generate new hash for the new tree
+        this.tree.generateBlob();
+        this.treeHash = tree.getSha1();
+        // must update toPrint stringbuilder
+        this.toPrint = new StringBuilder("");
+        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
+                + this.date + "\n" + this.summary);
+
     }
 
     public static void main(String[] args) throws Exception {

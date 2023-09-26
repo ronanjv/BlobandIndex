@@ -52,6 +52,14 @@ public class Tree {
         return this.entries;
     }
 
+    public String returnAllEntries() {
+        StringBuilder sb = new StringBuilder("");
+        for (String objects : entries) {
+            sb.append(objects);
+        }
+        return sb.toString();
+    }
+
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Tree tree = new Tree();
 
