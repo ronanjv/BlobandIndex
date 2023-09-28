@@ -17,6 +17,7 @@ public class Tree {
         entries.remove(entry);
     }
 
+    // "save" method
     public void generateBlob() throws IOException, NoSuchAlgorithmException {
         // Create a StringBuilder to concatenate all entries
         StringBuilder content = new StringBuilder();
@@ -49,6 +50,14 @@ public class Tree {
 
     public List<String> getEntries() {
         return this.entries;
+    }
+
+    public String returnAllEntries() {
+        StringBuilder sb = new StringBuilder("");
+        for (String objects : entries) {
+            sb.append(objects);
+        }
+        return sb.toString();
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
