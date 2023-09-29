@@ -75,4 +75,45 @@ public class Tree {
 
         System.out.println("Tree SHA1: " + tree.getSha1());
     }
+
+    public String addDirectory(String directoryPath) throws IOException, NoSuchAlgorithmException {
+        File dir = new File(directoryPath);
+
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new IllegalArgumentException("Invalid directory path: " + directoryPath);
+        }
+
+        Tree childTree = new Tree();
+
+        for (File file : dir.listFiles()) {
+            if (file.isFile()) {
+                String blobEntry = "blob : " + computeSHA1(file) + " : " + file.getName();
+                childTree.add(blobEntry);
+            } else if (file.isDirectory()) {
+                String subTreeSHA1 = childTree.addDirectory(file.getAbsolutePath());
+                String treeEntry = "tree : " + subTreeSHA1 + " : " + file.getName();
+                childTree.add(treeEntry);
+            }
+        }
+
+        childTree.generateBlob();
+
+        String treeEntry = "tree : " + childTree.getSha1() + " : " + dir.getName();
+        this.add(treeEntry);
+
+        return childTree.getSha1();
+    }
+
+    private String computeSHA1(File file) throws IOException, NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        try (InputStream is = new FileInputStream(file)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = is.read(buffer)) > 0) {
+                digest.update(buffer, 0, read);
+            }
+        }
+        byte[] hashBytes = digest.digest();
+        return byteArrayToHex(hashBytes);
+    }
 }
