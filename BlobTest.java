@@ -18,7 +18,7 @@ public class BlobTest {
     // tested because its functionality was tested in testBlob (). write method is
     // only a helper method that creates the hashed file with its contents in the
     // objects folder (testBlob calls write method within itself)
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated\\";
+    static String pathToWorkSpace = "/objects";
 
     @BeforeAll
     static void setUpBefore() throws Exception {
@@ -56,9 +56,9 @@ public class BlobTest {
         assertTrue(Files.exists(tree1));
         assertTrue(Files.exists(tree2));
         // assert that the blob created has the same contents as the original text file
-        File file1 = new File(pathToWorkSpace + "objects/f5cda28ce12d468c64a6a2f2224971f894442f1b");
+        File file1 = new File(pathToWorkSpace + "/f5cda28ce12d468c64a6a2f2224971f894442f1b");
         BufferedReader br1 = new BufferedReader(new FileReader(file1));
-        File file2 = new File(pathToWorkSpace + "objects/50d4b41eed4faffe212d8cf6ec89d7889dfeff9e");
+        File file2 = new File(pathToWorkSpace + "/50d4b41eed4faffe212d8cf6ec89d7889dfeff9e");
         BufferedReader br2 = new BufferedReader(new FileReader(file2));
         assertEquals("some content for file 1", br1.readLine());
         assertEquals("some content for file 2", br2.readLine());

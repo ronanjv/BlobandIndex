@@ -23,6 +23,7 @@ public class Index {
         if (!Files.exists(indexPath)) {
             Files.createFile(indexPath);
         }
+
     }
 
     public void addBlob(String fileName) throws IOException, NoSuchAlgorithmException {

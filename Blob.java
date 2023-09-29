@@ -8,13 +8,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Blob {
-    public static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
+    public static String pathToWorkSpace = "/objects";
 
     public Blob(String string) {
     }
 
     public static String blob(String inputFile) throws IOException, NoSuchAlgorithmException {
-        File file = new File(pathToWorkSpace + "\\" + inputFile);
+        File file = new File(pathToWorkSpace + "/" + inputFile);
+        file.createNewFile();
         BufferedReader reader = new BufferedReader(new FileReader(file));
         StringBuilder sb = new StringBuilder();
         String line;
@@ -31,7 +32,7 @@ public class Blob {
 
     public static void write(String hashed, StringBuilder inside) throws IOException {
         String newFile = hashed;
-        FileWriter write = new FileWriter(pathToWorkSpace + "\\objects\\" + newFile);
+        FileWriter write = new FileWriter(pathToWorkSpace + newFile);
         write.write(inside.toString());
         write.close();
     }
