@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -130,5 +132,43 @@ public class TreeTest {
                 "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated\\objects\\04ee905523810ffee3e5fe7f73e2825844674bbb");
         Files.delete(p1);
         tree.remove(blob2ToAdd);
+    }
+
+    @Test
+    void testAddDirectory() throws IOException, NoSuchAlgorithmException {
+        // Create a temporary directory with some files and subdirectories
+        Path tempDir = Files.createTempDirectory("test_tree");
+        Path file1 = tempDir.resolve("file1.txt");
+        Files.createFile(file1);
+        Path file2 = tempDir.resolve("file2.txt");
+        Files.createFile(file2);
+        Path subDir = tempDir.resolve("subdir");
+        Files.createDirectory(subDir);
+        Path subFile = subDir.resolve("subfile.txt");
+        Files.createFile(subFile);
+
+        // Create a Tree instance
+        Tree tree = new Tree();
+
+        // Add the directory to the tree
+        String directorySha1 = tree.addDirectory(tempDir.toString());
+
+        // Generate the blob for the tree
+        tree.generateBlob();
+
+        // Get the SHA-1 hash of the generated tree blob
+        String treeSha1 = tree.getSha1();
+
+        // Assert that the returned SHA-1 hash matches the expected value
+        assertEquals(directorySha1, treeSha1);
+
+        // Optionally, you can assert other properties of the tree structure here
+
+        // Clean up the temporary directory
+        Files.deleteIfExists(subFile);
+        Files.deleteIfExists(subDir);
+        Files.deleteIfExists(file2);
+        Files.deleteIfExists(file1);
+        Files.deleteIfExists(tempDir);
     }
 }
