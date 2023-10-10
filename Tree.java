@@ -1,119 +1,89 @@
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.file.*;
-import java.security.*;
-import java.util.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Tree {
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
+    private StringBuilder treeContent;
 
-    private List<String> entries = new ArrayList<>();
-    private String sha1;
+    public Tree() {
+        treeContent = new StringBuilder();
+    }
+
+    public void writeToFile() throws IOException, NoSuchAlgorithmException {
+        String sha1 = calculateSHA1(treeContent.toString());
+        String filePath = "./objects/" + sha1;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(treeContent.toString());
+        }
+    }
+
+    public String getSHA1() throws NoSuchAlgorithmException {
+        return calculateSHA1(treeContent.toString());
+    }
 
     public void add(String entry) {
-        entries.add(entry);
+        if (!treeContent.toString().contains(entry)) {
+            if (treeContent.length() > 0) {
+                treeContent.append("\n");
+            }
+            treeContent.append(entry);
+        }
     }
 
     public void remove(String entry) {
-        entries.remove(entry);
-    }
-
-    // "save" method
-    public void generateBlob() throws IOException, NoSuchAlgorithmException {
-        // Create a StringBuilder to concatenate all entries
-        StringBuilder content = new StringBuilder();
-        for (String entry : entries) {
-            content.append(entry).append("\n");
+        String[] lines = treeContent.toString().split("\n");
+        treeContent.setLength(0);
+        for (String line : lines) {
+            if (!line.equals(entry)) {
+                if (treeContent.length() > 0) {
+                    treeContent.append("\n");
+                }
+                treeContent.append(line);
+            }
         }
-
-        // Calculate the SHA-1 hash of the content
-        MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        byte[] hashBytes = digest.digest(content.toString().getBytes());
-        sha1 = byteArrayToHex(hashBytes);
-
-        // Create the blob file in the 'objects' folder
-        Path blobPath = Paths.get(pathToWorkSpace + "\\objects", sha1);
-        Files.write(blobPath, content.toString().getBytes());
     }
 
-    public String getSha1() {
-        return sha1;
-    }
-
-    // Utility method to convert byte array to hexadecimal string
-    private static String byteArrayToHex(byte[] bytes) {
-        StringBuilder result = new StringBuilder();
-        for (byte b : bytes) {
-            result.append(String.format("%02x", b));
-        }
-        return result.toString();
-    }
-
-    public List<String> getEntries() {
-        return this.entries;
-    }
-
-    public String returnAllEntries() {
-        StringBuilder sb = new StringBuilder("");
-        for (String objects : entries) {
-            sb.append(objects);
-        }
-        return sb.toString();
-    }
-
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
-        Tree tree = new Tree();
-
-        // Add entries to the tree
-        tree.add("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
-        tree.add("blob : 01d82591292494afd1602d175e165f94992f6f5f : file2.txt");
-        tree.add("blob : f1d82236ab908c86ed095023b1d2e6ddf78a6d83 : file3.txt");
-        tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
-        tree.add("tree : e7d79898d3342fd15daf6ec36f4cb095b52fd976");
-
-        // Generate and save the tree blob
-        tree.generateBlob();
-
-        System.out.println("Tree SHA1: " + tree.getSha1());
+    public String getTree() {
+        return treeContent.toString();
     }
 
     public String addDirectory(String directoryPath) throws IOException, NoSuchAlgorithmException {
-        File dir = new File(directoryPath);
-
-        if (!dir.exists() || !dir.isDirectory()) {
-            throw new IllegalArgumentException("Invalid directory path: " + directoryPath);
+        File rootDir = new File(directoryPath);
+        if (!rootDir.exists() || !rootDir.isDirectory()) {
+            throw new IOException("Invalid directory path: " + directoryPath);
         }
 
-        Tree childTree = new Tree();
+        Tree mainTree = new Tree();
 
-        for (File file : dir.listFiles()) {
-            if (file.isFile()) {
-                String blobEntry = "blob : " + computeSHA1(file) + " : " + file.getName();
-                childTree.add(blobEntry);
-            } else if (file.isDirectory()) {
-                String subTreeSHA1 = childTree.addDirectory(file.getAbsolutePath());
-                String treeEntry = "tree : " + subTreeSHA1 + " : " + file.getName();
-                childTree.add(treeEntry);
+        for (File fileDir : rootDir.listFiles()) {
+            if (fileDir.isFile()) {
+                String filePath = fileDir.getAbsolutePath();
+                String fileName = fileDir.getName();
+                String shaOfFile = calculateSHA1(Blob.fileReader(Paths.get(filePath)));
+                mainTree.add("blob : " + shaOfFile + " : " + fileName);
+            } else if (fileDir.isDirectory()) {
+                String dirPath = fileDir.getAbsolutePath();
+                String dirName = fileDir.getName();
+                Tree childTree = new Tree();
+                String shaOfSubDir = childTree.addDirectory(dirPath);
+                mainTree.add("tree : " + shaOfSubDir + " : " + dirName);
             }
         }
 
-        childTree.generateBlob();
-
-        String treeEntry = "tree : " + childTree.getSha1() + " : " + dir.getName();
-        this.add(treeEntry);
-
-        return childTree.getSha1();
+        mainTree.writeToFile();
+        return mainTree.getSHA1();
     }
 
-    private String computeSHA1(File file) throws IOException, NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        try (InputStream is = new FileInputStream(file)) {
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = is.read(buffer)) > 0) {
-                digest.update(buffer, 0, read);
-            }
+    private String calculateSHA1(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] messageDigest = md.digest(input.getBytes());
+        BigInteger no = new BigInteger(1, messageDigest);
+        String hashtext = no.toString(16);
+        while (hashtext.length() < 40) {
+            hashtext = "0" + hashtext;
         }
-        byte[] hashBytes = digest.digest();
-        return byteArrayToHex(hashBytes);
+        return hashtext;
     }
 }

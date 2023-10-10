@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -96,9 +98,24 @@ public class Blob {
         return strHashCode;
     }
 
+    public String getSha() {
+        return sha;
+    }
+
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
         String file = "input.txt";
         blob(file);
 
+    }
+
+    public static String fileReader(Path p) throws IOException {
+        StringBuilder str = new StringBuilder();
+        // BufferedReader br = new BufferedReader(file);
+        BufferedReader br = Files.newBufferedReader(p);
+        while (br.ready()) {
+            str.append((char) br.read());
+        }
+        br.close();
+        return str.toString();
     }
 }
