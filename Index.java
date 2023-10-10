@@ -6,24 +6,22 @@ import java.util.*;
 public class Index {
 
     private HashMap<String, String> files = new HashMap<>();
-    private static String path = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
+    private String path = "objects";
 
     public Index() throws IOException {
         init();
     }
 
-    public static void init() throws IOException {
-        // init should not create the index file inside the objects folder
-        java.nio.file.Path folderPath = Paths.get(path + "\\objects");
+    public void init() throws IOException {
+        java.nio.file.Path folderPath = Paths.get(path);
         if (!Files.exists(folderPath)) {
             Files.createDirectory(folderPath);
         }
 
-        Path indexPath = Paths.get(path + "\\index");
+        Path indexPath = folderPath.resolve("index");
         if (!Files.exists(indexPath)) {
             Files.createFile(indexPath);
         }
-
     }
 
     public void addBlob(String fileName) throws IOException, NoSuchAlgorithmException {
@@ -34,7 +32,7 @@ public class Index {
         Path indexPath = Paths.get(path + File.separator + "index");
         try (BufferedWriter writer = Files.newBufferedWriter(indexPath, StandardOpenOption.CREATE,
                 StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
-            writer.write("blob : " + fileName + " : " + hashName);
+            writer.write(fileName + " : " + hashName);
             writer.newLine();
         }
     }
@@ -50,16 +48,7 @@ public class Index {
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         Index index = new Index();
-        index.addBlob("test.txt");
-        index.addBlob("test2.txt");
-        index.removeBlob("test.txt");
-    }
-
-    public boolean containsBlob(String fileName) {
-        return files.containsKey(fileName);
-    }
-
-    public String getBlobHash(String fileName) {
-        return files.get(fileName);
+        index.addBlob("file1.txt");
+        index.removeBlob("file1.txt");
     }
 }
