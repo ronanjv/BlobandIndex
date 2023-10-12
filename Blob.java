@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -12,77 +13,26 @@ import java.security.NoSuchAlgorithmException;
 
 public class Blob {
 
-    private String filePath;
-    private String sha;
 
-    public Blob(String inputFile) throws IOException {
-        try {
-            File file = new File(inputFile);
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            StringBuilder fileInfo = new StringBuilder();
+    public Blob(String inputFile) throws IOException, NoSuchAlgorithmException {
+        String content = readFile(inputFile);
+        String hash = SHA1(content);
+        createObjectsFolder();
+        String blobFileName = "objects" + File.separator + hash;
+        writeFile(blobFileName, content);
+    }
+
+
+
+    public static String readFile(String fileName) throws IOException {
+        StringBuilder fileContent = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                fileInfo.append(line).append("");
+                fileContent.append(line);
             }
-            reader.close();
-            String hashed = hashStringToSHA1(fileInfo.toString());
-            write(hashed, fileInfo);
-            sha = hashed;
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
-
-    // google
-    public static String hashStringToSHA1(String input) {
-        try {
-            MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
-            byte[] inputBytes = input.getBytes();
-            sha1Digest.update(inputBytes);
-            byte[] hashBytes = sha1Digest.digest();
-            StringBuilder hexString = new StringBuilder();
-            for (byte hashByte : hashBytes) {
-                String hex = Integer.toHexString(0xFF & hashByte);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static String blob(String inputFile) throws IOException, NoSuchAlgorithmException {
-        File file = new File(inputFile);
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            sb.append(line).append("");
-        }
-        reader.close();
-        String hashed = SHA1(sb.toString());
-        write(hashed, sb);
-
-        return hashed;
-    }
-
-    public static void write(String hashed, StringBuilder inside) {
-        try {
-            String newFile = hashed;
-            File objects = new File("./objects");
-            objects.mkdirs();
-            FileWriter write = new FileWriter("./objects/" + newFile);
-            write.write(inside.toString());
-            write.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return fileContent.toString();
     }
 
     public static String SHA1(String input) throws NoSuchAlgorithmException {
@@ -98,24 +48,19 @@ public class Blob {
         return strHashCode;
     }
 
-    public String getSha() {
-        return sha;
-    }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        String file = "input.txt";
-        blob(file);
 
-    }
-
-    public static String fileReader(Path p) throws IOException {
-        StringBuilder str = new StringBuilder();
-        // BufferedReader br = new BufferedReader(file);
-        BufferedReader br = Files.newBufferedReader(p);
-        while (br.ready()) {
-            str.append((char) br.read());
+    private void createObjectsFolder() {
+        File folder = new File("objects");
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
-        br.close();
-        return str.toString();
+    }
+
+
+    private void writeFile(String fileName, String content) throws IOException {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write(content);
+        }
     }
 }
