@@ -27,7 +27,10 @@ public class Tree {
     }
 
     public void add(String entry) throws IOException, NoSuchAlgorithmException{
-        init();
+        File tree = new File("tree");
+         if (!tree.exists()) {
+            tree.createNewFile();
+        }
         String fileContent = Blob.readFile(entry);
         String hash = Blob.SHA1(fileContent);
 
@@ -49,18 +52,22 @@ public class Tree {
     }
 
     public void remove(String entry) throws NoSuchAlgorithmException, IOException{
-        String fileContent = Blob.readFile(entry);
-        String hash = Blob.SHA1(fileContent);
             for (int i=0; i<treeStrings.size(); i++){
                 if (treeStrings.get(i).contains(entry))
                 treeStrings.remove(i);
             }
 
-        System.out.println(treeStrings);
 
         writeToFile(treeStrings, "tree");
 
+    }
 
+    public void generateBlob() throws IOException, NoSuchAlgorithmException{
+        String fileContent = Blob.readFile("tree");
+        String hash = Blob.SHA1(fileContent);
+
+        String blobFileName = "objects" + File.separator + hash;
+        writeToFile(treeStrings, blobFileName);
     }
 
     public static void writeToFile(List<String> treeStrings2, String fileName) {
