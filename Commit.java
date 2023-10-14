@@ -97,6 +97,13 @@ public class Commit {
     
 
     public Commit(String author, String summary) throws NoSuchAlgorithmException, IOException {
+
+        File file = new File("tree");
+        if (!file.exists()){
+            Tree tree = new Tree();
+            tree.init();
+        }
+        
         String fileContent = Blob.readFile("tree");
         String hash = Blob.SHA1(fileContent);
         this.treeSHA1 = hash;
@@ -158,7 +165,9 @@ public class Commit {
         }
     }
 
-    
-
+    public String getCommitSHA1() throws NoSuchAlgorithmException, IOException {
+        String fileContent = Blob.readFile("commit");
+        return Blob.SHA1(fileContent);
+    }
 
 }
