@@ -15,25 +15,28 @@ public class Blob {
 
 
     public Blob(String inputFile) throws IOException, NoSuchAlgorithmException {
-        String content = readFile(inputFile);
-        String hash = SHA1(content);
-        createObjectsFolder();
-        String blobFileName = "objects" + File.separator + hash;
-        writeFile(blobFileName, content);
-    }
+    String content = readFile(inputFile);
+    String hash = SHA1(content);
+    createObjectsFolder();
+    String blobFileName = "objects" + File.separator + hash;
+    writeFile(blobFileName, content);
+}
 
 
 
-    public static String readFile(String fileName) throws IOException {
-        StringBuilder fileContent = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                fileContent.append(line + "\n");
+public static String readFile(String fileName) throws IOException {
+    StringBuilder fileContent = new StringBuilder();
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileName, StandardCharsets.UTF_8))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            fileContent.append(line);
+            if (reader.ready()) {
+                fileContent.append("\n");
             }
         }
-        return fileContent.toString();
     }
+    return fileContent.toString();
+}
 
     public static String SHA1(String input) throws NoSuchAlgorithmException {
         MessageDigest objSHA = MessageDigest.getInstance("SHA-1");
