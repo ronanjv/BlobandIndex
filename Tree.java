@@ -27,30 +27,32 @@ public class Tree {
     }
 
     public void add(String entry) throws IOException, NoSuchAlgorithmException {
-	    File tree = new File("tree");
-	    if (!tree.exists()) {
-	        tree.createNewFile();
-	    }
+        File tree = new File("tree");
+        if (!tree.exists()) {
+            tree.createNewFile();
+        }
+    
+        String treeContent;
+        if (entry.startsWith("tree :")) {
+            treeContent = entry;
+        } else {
+            String fileContent = Blob.readFile(entry);
+            String hash = Blob.SHA1(fileContent);
+            String blobFileName = "objects" + File.separator + hash;
+            writeFile(blobFileName, fileContent);
+            treeContent = "blob : " + hash + " : " + entry;
+        }
+        treeStrings.add(treeContent);
 
-	    String treeContent;
-	    if (entry.startsWith("tree :")) {
-	        treeContent = entry;
-	    } else {
-	        String fileContent = Blob.readFile(entry);
-	        String hash = Blob.SHA1(fileContent);
-	        String blobFileName = "objects" + File.separator + hash;
-	        writeFile(blobFileName, fileContent);
-	        treeContent = "blob : " + hash + " : " + entry;
-	    }
-	    treeStrings.add(treeContent);
-	    try (FileWriter fileWriter = new FileWriter("tree", true)) {
-	        if (tree.exists()) {
-	            fileWriter.write(treeContent);
-	        } else {
-	            fileWriter.write(treeContent);
-	        }
-	    }
-	}
+        try (FileWriter fileWriter = new FileWriter("tree", true)) {
+            if (tree.exists()) {
+                fileWriter.write("\n" + treeContent);
+            } else {
+                fileWriter.write(treeContent);
+            }
+        }
+    }
+    
 
     private void writeFile(String fileName, String content) throws IOException {
         try (FileWriter writer = new FileWriter(fileName)) {
@@ -69,12 +71,18 @@ public class Tree {
 
     }
 
-    public void generateBlob() throws IOException, NoSuchAlgorithmException{
+    public void save() throws IOException, NoSuchAlgorithmException{
         String fileContent = Blob.readFile("tree");
         String hash = Blob.SHA1(fileContent);
 
         String blobFileName = "objects" + File.separator + hash;
         writeToFile(treeStrings, blobFileName);
+    }
+
+    public String generateBlob() throws IOException, NoSuchAlgorithmException {
+        String fileContent = Blob.readFile("tree");
+        String hash = Blob.SHA1(fileContent);
+        return Blob.readFile("objects" + File.separator + hash);
     }
 
     public static void writeToFile(List<String> treeStrings2, String fileName) {

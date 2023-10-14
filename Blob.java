@@ -29,7 +29,7 @@ public class Blob {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                fileContent.append(line);
+                fileContent.append(line + "\n");
             }
         }
         return fileContent.toString();
@@ -50,7 +50,7 @@ public class Blob {
 
 
 
-    private void createObjectsFolder() {
+    public void createObjectsFolder() {
         File folder = new File("objects");
         if (!folder.exists()) {
             folder.mkdirs();
@@ -58,7 +58,7 @@ public class Blob {
     }
 
 
-    private void writeFile(String fileName, String content) throws IOException {
+    public static void writeFile(String fileName, String content) throws IOException {
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.write(content);
         }
