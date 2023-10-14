@@ -101,6 +101,61 @@ public class Tree {
 	    }
 	}
 
+    public String addDirectory (String directoryPath) throws IOException, NoSuchAlgorithmException{
+        File rootDir = new File(directoryPath);
+        if (!rootDir.exists())
+        {
+            throw new IOException ("This Directory pathing doesn't exist");
+        }
+        if (!rootDir.canRead())
+        {
+            throw new IOException ("Invalid Directory pathing");
+        }
+        Tree rootTree = new Tree();
+        for (String fileDir : rootDir.list())
+        {
+            System.out.println(fileDir);
+            File file = new File(rootDir, fileDir);
+            if (file.isFile())
+            {
+                String filePath = file.getPath();
+                String fileName = file.getName();
+                String shaOfFile = Blob.SHA1(dirReader(Paths.get(filePath)));
+                rootTree.add("blob : " + shaOfFile + " : " + fileName);
+            }
+            else if (file.isDirectory())
+            {
+                String dirPath = file.getPath();
+                String dirName = file.getName();
+                Tree childTree = new Tree();
+                String shaOfSubDir = childTree.addDirectory(dirPath);
+
+                rootTree.add("tree : " + shaOfSubDir + " : " + dirName);
+            }
+        }
+
+        rootTree.save();
+        return rootTree.getSha();
+    }
+
+    private String getSha() throws IOException, NoSuchAlgorithmException {
+		String fileContent = Blob.readFile("tree");
+		String hash = Blob.SHA1(fileContent);
+		return hash;
+	}
+
+    public static String dirReader(Path p) throws IOException {
+        StringBuilder str = new StringBuilder();
+        BufferedReader br = Files.newBufferedReader(p);
+        while (br.ready()) {
+            str.append((char) br.read());
+        }
+        br.close();
+        return str.toString();
+    }
+
+
+    
     
 
     private void createObjectsFolder() {

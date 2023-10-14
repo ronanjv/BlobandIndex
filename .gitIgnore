@@ -1,2 +1,3 @@
-/objects
+objects/
 .DS_Store
+*.txt
