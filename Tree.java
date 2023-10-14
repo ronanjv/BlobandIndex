@@ -27,6 +27,7 @@ public class Tree {
     }
 
     public void add(String entry) throws IOException, NoSuchAlgorithmException {
+        createObjectsFolder();
         File tree = new File("tree");
         if (!tree.exists()) {
             tree.createNewFile();
@@ -103,13 +104,8 @@ public class Tree {
 
     public String addDirectory (String directoryPath) throws IOException, NoSuchAlgorithmException{
         File rootDir = new File(directoryPath);
-        if (!rootDir.exists())
-        {
-            throw new IOException ("This Directory pathing doesn't exist");
-        }
-        if (!rootDir.canRead())
-        {
-            throw new IOException ("Invalid Directory pathing");
+        if (!rootDir.exists() || !rootDir.canRead()) {
+            throw new IOException("Invalid or unreadable directory path");
         }
         Tree rootTree = new Tree();
         for (String fileDir : rootDir.list())
@@ -155,7 +151,9 @@ public class Tree {
     }
 
 
-    
+    public List<String> getTreeStrings() {
+        return treeStrings;
+    }
     
 
     private void createObjectsFolder() {
