@@ -1,7 +1,5 @@
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,6 +11,7 @@ public class Commit {
     private String author;
     private String date;
     private String summary;
+    private String commit1;
 
 
     public Commit(String parentCommitSHA1, String author, String summary) throws NoSuchAlgorithmException, IOException {
@@ -31,6 +30,9 @@ public class Commit {
         commitFile.createNewFile();
     }
 
+    
+    
+    
     PrintWriter pw = new PrintWriter(new FileWriter(commitFile));
     pw.println( treeSHA1);
     pw.println(prevSHA);
@@ -38,29 +40,58 @@ public class Commit {
     pw.println(date);
     pw.print(summary);
     pw.close();
-
+    
     String content = Blob.readFile("commit");
     String comHash = Blob.SHA1(content);
-    
+
     createBlob();
     updatePrevious(prevSHA,comHash);
     updateHeadFile();
 
     }
+    
 
     private void updatePrevious(String previousSha, String shaToAdd) throws IOException {
         File previousCommitFile = new File("objects" + File.separator + previousSha);
+        File prev2CommitFile = new File("objects" + File.separator + commit1);
+        if (!prev2CommitFile.exists()) {
+            List<String> lines = Files.readAllLines(previousCommitFile.toPath());
+
+            if (lines.size() > 1) {
+                int nextCommitIndex = ordinalIndexOf(lines, ":", 3);
+                if (nextCommitIndex != -1) {
+                    lines.set(nextCommitIndex - 2, shaToAdd);
+                } else {
+                    lines.add(1, shaToAdd);
+                }
+
+                Files.write(previousCommitFile.toPath(), lines);
+            }
+            return;
+        }
         if (previousCommitFile.exists()) {
             List<String> lines = Files.readAllLines(previousCommitFile.toPath());
 
             if (lines.size() > 1) {
-                lines.set(1, shaToAdd);
-            } else {
-                lines.add(1, shaToAdd);
-            }
+                int nextCommitIndex = ordinalIndexOf(lines, ":", 3);
+                if (nextCommitIndex != -1) {
+                    lines.set(nextCommitIndex - 1, shaToAdd);
+                } else {
+                    lines.add(2, shaToAdd);
+                }
 
-            Files.write(previousCommitFile.toPath(), lines);
+                Files.write(previousCommitFile.toPath(), lines);
+            }
         }
+    }
+
+
+    private int ordinalIndexOf(List<String> list, String str, int n) {
+        int pos = -1;
+        do {
+            pos = list.get(pos + 1).indexOf(str, pos + 1);
+        } while (n-- > 0 && pos != -1);
+        return pos;
     }
 
     
@@ -84,6 +115,8 @@ public class Commit {
     pw.println(date);
     pw.print(summary);
     pw.close();
+    
+    commit1 = hash;
 
     createBlob();
     createHeadFile();
